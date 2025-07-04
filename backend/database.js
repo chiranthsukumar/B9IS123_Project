@@ -11,3 +11,18 @@ const db = new sqlite3.Database(dbPath, (err) => {
         console.log('Connnected to database');
     }
 });
+
+function initializeTables(){
+    db.run(`CREATE TABLE IF NOT EXISTS customers (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        phone TEXT NOT NULL,
+        email TEXT,
+        address TEXT,
+        created_date DATETIME DEFAULT CURRENT_TIMESTAMP
+    )`, (err) => {
+        if (err) {
+            console.error('Error creating customers table:', err.message);
+        }
+    });
+}
