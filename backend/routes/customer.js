@@ -1,54 +1,174 @@
 import express from 'express';
-import { DB } from '../db.js';
+import { db } from '../database.js';
 
-const route = express.Router();
+const router = express.Router();
 
-const customer = [
-    {
-        "id": 1,
-        "name": "Eva John",
-        "phone": "89566272",
-        "email": "eva@example.com",
-        "vehicle_number": "KL-13-AB-1234",
-        "vehicle_model": "Honda City"
-    },
-    {
-        "id": 2,
-        "name": "John Doe",
-        "phone": "464957648",
-        "email": "Johniie@example.com",
-        "vehicle_number": "KL-02-B-005",
-        "vehicle_model": "Toyota Innova"
-    },
-    {
-        "id": 3,
-        "name": "Nithin K",
-        "phone": "957564398",
-        "email": "nithin34@gmail.com",
-        "vehicle_number": "KL-07-L-8978",
-        "vehicle_model": "Honda Civic"
-    },
-    {
-        "id": 4,
-        "name": "Eva Maria",
-        "phone": "859575849",
-        "email": "mariaeva@gmail.com",
-        "vehicle_number": "KL-59-AA-2341",
-        "vehicle_model": "Volkswagon Golf"
-    },
-    {
-        "id": 5,
-        "name": "Bhagath Sharma",
-        "phone": "857564839",
-        "email": "bhagath696969696969@yahoo.com",
-        "vehicle_number": "KL-01-CP-1234",
-        "vehicle_model": "Suzuki Alto"
+router.post('/', async (req, res) => {
+    try {
+        const { name, phone, email, address } = req.body;
+        
+        if (!name || !phone) {
+            return res.status(400).json({ 
+                error: 'Name and phone are required' 
+            });
+        }
+
+        const sql = `INSERT INTO customers (name, phone, email, address) 
+                     VALUES (?, ?, ?, ?)`;
+        const result = await dbHelpers.run(sql, [name, phone, email, address]);
+        
+        res.status(201).json({
+            message: 'Customer created successfully',
+            customer: {
+                id: result.id,
+                name,
+                phone,
+                email,
+                address
+            }
+        });
+    } catch (error) {
+        console.error('Error creating customer:', error);
+        res.status(500).json({ error: 'Failed to create customer' });
     }
-]
-
-
-route.get('/', (req, res) =>{
-    res.send(customer);
 });
 
-export default route
+router.get('/', async (req, res) => {
+    try {
+        const sql = `SELECT * FROM customers ORDER BY created_date DESC`;
+        const customers = await dbHelpers.all(sql);
+        
+        res.json({
+            message: 'Customers retrieved successfully',
+            customers: customers,
+            count: customers.length
+        });
+    } catch (error) {
+        console.error('Error fetching customers:', error);
+        res.status(500).json({ error: 'Failed to fetch customers' });
+    }
+});
+
+router.get('/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const sql = `SELECT * FROM customers WHERE id = ?`;
+        const customer = await dbHelpers.get(sql, [id]);
+        
+        if (!customer) {
+            return res.status(404).json({ error: 'Customer not found' });
+        }
+        
+        res.json({
+            message: 'Customer retrieved successfully',
+            customer: customer
+        });
+    } catch (error) {
+        console.error('Error fetching customer:', error);
+        res.status(500).json({ error: 'Failed to fetch customer' });
+    }
+});
+
+router.put('/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { name, phone, email, address } = req.body;
+        
+        const existingCustomer = await dbHelpers.get(
+            'SELECT * FROM customers WHERE id = ?', [id]
+        );
+        
+        if (!existingCustomer) {
+            return res.status(404).json({ error: 'Customer not found' });
+        }
+        
+        // Basic validation
+        if (!name || !phone) {
+            return res.status(400).json({ 
+                error: 'Name and phone are required' 
+            });
+        }
+        
+        const sql = `UPDATE customers 
+                     SET name = ?, phone = ?, email = ?, address = ?
+                     WHERE id = ?`;
+        await dbHelpers.run(sql, [name, phone, email, address, id]);
+        
+        res.json({
+            message: 'Customer updated successfully',
+            customer: {
+                id: parseInt(id),
+                name,
+                phone,
+                email,
+                address
+            }
+        });
+    } catch (error) {
+        console.error('Error updating customer:', error);
+        res.status(500).json({ error: 'Failed to update customer' });
+    }
+});
+
+router.delete('/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        
+        const existingCustomer = await dbHelpers.get(
+            'SELECT * FROM customers WHERE id = ?', [id]
+        );
+        
+        if (!existingCustomer) {
+            return res.status(404).json({ error: 'Customer not found' });
+        }
+        
+        const vehicles = await dbHelpers.all(
+            'SELECT * FROM vehicles WHERE customer_id = ?', [id]
+        );
+        
+        if (vehicles.length > 0) {
+            return res.status(400).json({ 
+                error: 'Cannot delete customer with associated vehicles',
+                vehicleCount: vehicles.length
+            });
+        }
+        
+        const sql = 'DELETE FROM customers WHERE id = ?';
+        await dbHelpers.run(sql, [id]);
+        
+        res.json({
+            message: 'Customer deleted successfully',
+            deletedCustomer: existingCustomer
+        });
+    } catch (error) {
+        console.error('Error deleting customer:', error);
+        res.status(500).json({ error: 'Failed to delete customer' });
+    }
+});
+
+router.get('/stats/summary', async (req, res) => {
+    try {
+        const totalCustomers = await dbHelpers.get(
+            'SELECT COUNT(*) as count FROM customers'
+        );
+        
+        const customersWithVehicles = await dbHelpers.get(
+            `SELECT COUNT(DISTINCT customer_id) as count 
+             FROM vehicles`
+        );
+        
+        res.json({
+            message: 'Customer statistics retrieved successfully',
+            stats: {
+                totalCustomers: totalCustomers.count,
+                customersWithVehicles: customersWithVehicles.count,
+                customersWithoutVehicles: totalCustomers.count - customersWithVehicles.count
+            }
+        });
+    } catch (error) {
+        console.error('Error fetching customer stats:', error);
+        res.status(500).json({ error: 'Failed to fetch customer statistics' });
+    }
+});
+
+module.exports = router;
