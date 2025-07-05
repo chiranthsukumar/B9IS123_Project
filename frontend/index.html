@@ -6,6 +6,35 @@
     <title>Document</title>
 </head>
 <body>
+        <div class="content-container">
+            <div id="overview-module" class="module active">
+                <h2>Business Overview</h2>
+                
+           
+
+                <div class="dashboard-content">
+                    <div class="dashboard-card">
+                        <h3>Recent Services</h3>
+                        <div id="recentServicesOverview">Loading...</div>
+                    </div>
+                    
+                    <div class="dashboard-card">
+                        <h3>Quick Actions</h3>
+                        <div class="quick-actions">
+                            <button class="quick-action-btn" onclick="switchModule('customers'); showCustomerForm();">
+                                <i class="fas fa-user-plus"></i> Add Customer
+                            </button>
+                            <button class="quick-action-btn" onclick="switchModule('vehicles'); showVehicleForm();">
+                                <i class="fas fa-car"></i> Add Vehicle
+                            </button>
+                            <button class="quick-action-btn" onclick="switchModule('services'); showServiceForm();">
+                                <i class="fas fa-plus"></i> Add Service
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div id="customers-module" class="module">
                 <div class="module-header">
                     <h2>Customer Management</h2>
@@ -41,5 +70,46 @@
                 </div>
                 <div id="customersDataContainer">Loading customers...</div>
             </div>
+
+            <div id="services-module" class="module">
+                <div class="module-header">
+                    <h2>Service Management</h2>
+                    <button class="btn btn-primary" onclick="showServiceForm()">
+                        <i class="fas fa-plus"></i> Add Service
+                    </button>
+                </div>
+
+                <div id="serviceForm" class="form-section" style="display: none;">
+                    <div class="form-card">
+                        <div class="form-header">
+                            <h3 id="serviceFormTitle">Add Service</h3>
+                            <button class="close-btn" onclick="hideServiceForm()">×</button>
+                        </div>
+                        <form onsubmit="handleServiceSubmit(event)">
+                            <input type="hidden" id="serviceId">
+                            <div class="form-grid">
+                                <select id="serviceVehicleId" required>
+                                    <option value="">Select Vehicle *</option>
+                                </select>
+                                <input type="date" id="serviceDate" required>
+                                <input type="number" id="serviceCost" placeholder="Cost (€) *" step="0.01" required>
+                                <select id="serviceStatus">
+                                    <option value="completed">Completed</option>
+                                    <option value="pending">Pending</option>
+                                    <option value="in-progress">In Progress</option>
+                                </select>
+                                <textarea id="serviceDescription" placeholder="Service Description *" required></textarea>
+                            </div>
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-primary">Save</button>
+                                <button type="button" class="btn btn-secondary" onclick="hideServiceForm()">Cancel</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div id="servicesDataContainer">Loading services...</div>
+            </div>
+        </div>
 </body>
 </html>
