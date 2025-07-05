@@ -71,13 +71,57 @@ function displayCustomers() {
     const container = document.getElementById('customersDataContainer');
     
     if (appData.customers.length === 0) {
-    container.innerHTML = `
-      <p><strong>No customers found.</strong></p>
-      <p>Add your first customer.</p>
-      <button onclick="showCustomerForm()">Add Customer</button>
+        container.innerHTML = `
+            <div class="empty-state">
+                <i class="fas fa-users"></i>
+                <h3>No customers found</h3>
+                <p>Get started by adding your first customer to the system.</p>
+                <button class="btn btn-primary" onclick="showCustomerForm()">
+                    <i class="fas fa-plus"></i> Add First Customer
+                </button>
+            </div>
+        `;
+        return;
+    }
+
+  const customersHtml = `
+        <div class="data-grid">
+            ${appData.customers.map(customer => `
+                <div class="data-item">
+                    <div class="item-header">
+                        <div>
+                            <div class="item-title">${customer.name}</div>
+                            <div class="item-subtitle">${customer.phone}</div>
+                        </div>
+                        <div class="item-actions">
+                            <button class="btn btn-warning btn-sm" onclick="editCustomer(${customer.id})">
+                                <i class="fas fa-edit"></i> Edit
+                            </button>
+                            <button class="btn btn-danger btn-sm" onclick="confirmDeleteCustomer(${customer.id})">
+                                <i class="fas fa-trash"></i> Delete
+                            </button>
+                        </div>
+                    </div>
+                    <div class="item-details">
+                        <div class="detail-item">
+                            <div class="detail-label">Email</div>
+                            <div class="detail-value">${customer.email || 'Not provided'}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Address</div>
+                            <div class="detail-value">${customer.address || 'Not provided'}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Joined</div>
+                            <div class="detail-value">${formatDate(customer.created_date)}</div>
+                        </div>
+                    </div>
+                </div>
+            `).join('')}
+        </div>
     `;
-    return;
-  }
+    
+    container.innerHTML = customersHtml;
     
 }
 
