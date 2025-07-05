@@ -6,18 +6,40 @@
     <title>Document</title>
 </head>
 <body>
-    <div>
-        <h1 id="AddCustomerTitle">Add Customer</h3>
-        <form onsubmit=>
-            <input type="hidden" id="customerId">
-            <input type="text" id="customerName" placeholder="Full Name" required>
-            <input type="tel" id="customerPhone" placeholder="Phone" required>
-            <input type="email" id="customerEmail" placeholder="Email">
-            <textarea id="customerAddress" placeholder="Address"></textarea>
-        </form>
-    </div>
-    <div>
-        <button type="submit">Save</button>
-    </div>
+            <div id="customers-module" class="module">
+                <div class="module-header">
+                    <h2>Customer Management</h2>
+                    <button class="btn btn-primary" onclick="showCustomerForm()">
+                        <i class="fas fa-plus"></i> Add Customer
+                    </button>
+                </div>
+
+                <div id="customerForm" class="form-section" style="display: none;">
+                    <div class="form-card">
+                        <div class="form-header">
+                            <h3 id="customerFormTitle">Add Customer</h3>
+                            <button class="close-btn" onclick="hideCustomerForm()">×</button>
+                        </div>
+                        <form onsubmit="handleCustomerSubmit(event)">
+                            <input type="hidden" id="customerId">
+                            <div class="form-grid">
+                                <input type="text" id="customerName" placeholder="Full Name *" required>
+                                <input type="tel" id="customerPhone" placeholder="Phone *" required>
+                                <input type="email" id="customerEmail" placeholder="Email">
+                                <textarea id="customerAddress" placeholder="Address"></textarea>
+                            </div>
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-primary">Save</button>
+                                <button type="button" class="btn btn-secondary" onclick="hideCustomerForm()">Cancel</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="filter-section">
+                    <input type="text" id="customerSearchFilter" placeholder="Search customers..." onkeyup="filterCustomers()">
+                </div>
+                <div id="customersDataContainer">Loading customers...</div>
+            </div>
 </body>
 </html>
