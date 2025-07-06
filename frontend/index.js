@@ -198,6 +198,190 @@ async function deleteCustomer(customerId) {
     }
 }
 
+function displayVehicles() {
+    const container = document.getElementById('vehiclesDataContainer');
+    
+    if (appData.vehicles.length === 0) {
+        container.innerHTML = `
+            <div class="empty-state">
+                <i class="fas fa-car"></i>
+                <h3>No vehicles found</h3>
+                <p>Register your first vehicle to get started with vehicle management.</p>
+                <button class="btn btn-primary" onclick="showVehicleForm()">
+                    <i class="fas fa-plus"></i> Register First Vehicle
+                </button>
+            </div>
+        `;
+        return;
+    }
+    
+    const vehiclesHtml = `
+        <div class="data-grid">
+            ${appData.vehicles.map(vehicle => `
+                <div class="data-item">
+                    <div class="item-header">
+                        <div>
+                            <div class="item-title">${vehicle.make} ${vehicle.model}</div>
+                            <div class="item-subtitle">${vehicle.customer_name}</div>
+                        </div>
+                        <div class="item-actions">
+                            <button class="btn btn-warning btn-sm" onclick="editVehicle(${vehicle.id})">
+                                <i class="fas fa-edit"></i> Edit
+                            </button>
+                            <button class="btn btn-danger btn-sm" onclick="confirmDeleteVehicle(${vehicle.id})">
+                                <i class="fas fa-trash"></i> Delete
+                            </button>
+                        </div>
+                    </div>
+                    <div class="item-details">
+                        <div class="detail-item">
+                            <div class="detail-label">Year</div>
+                            <div class="detail-value">${vehicle.year}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">License Plate</div>
+                            <div class="detail-value">${vehicle.license_plate}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Customer Phone</div>
+                            <div class="detail-value">${vehicle.customer_phone}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Registered</div>
+                            <div class="detail-value">${formatDate(vehicle.created_date)}</div>
+                        </div>
+                    </div>
+                </div>
+            `).join('')}
+        </div>
+    `;
+    
+    container.innerHTML = vehiclesHtml;
+}
+
+async function loadCustomersForSelect() {
+    if (appData.customers.length === 0) {
+        await loadCustomersData();
+    }
+    
+    const select = document.getElementById('vehicleCustomerId');
+    if (select) {
+        select.innerHTML = '<option value="">Choose a customer...</option>';
+        appData.customers.forEach(customer => {
+            select.innerHTML += `<option value="${customer.id}">${customer.name} - ${customer.phone}</option>`;
+        });
+    }
+}
+
+function showVehicleForm() {
+    document.getElementById('vehicleForm').style.display = 'block';
+    document.getElementById('vehicleForm').scrollIntoView();
+    
+    document.querySelector('#vehicleForm form').reset();
+    document.getElementById('vehicleId').value = '';
+    document.getElementById('vehicleFormTitle').textContent = 'Add Vehicle';
+    
+    loadCustomersForSelect();
+    appData.currentEditId = null;
+}
+
+function hideVehicleForm() {
+    document.getElementById('vehicleForm').style.display = 'none';
+    appData.currentEditId = null;
+}
+
+function editVehicle(vehicleId) {
+    const vehicle = appData.vehicles.find(v => v.id === vehicleId);
+    if (!vehicle) return;
+    
+    showVehicleForm();
+    
+    document.getElementById('vehicleId').value = vehicle.id;
+    document.getElementById('vehicleCustomerId').value = vehicle.customer_id;
+    document.getElementById('vehicleMake').value = vehicle.make;
+    document.getElementById('vehicleModel').value = vehicle.model;
+    document.getElementById('vehicleYear').value = vehicle.year;
+    document.getElementById('vehiclePlate').value = vehicle.license_plate;
+    document.getElementById('vehicleFormTitle').textContent = 'Edit Vehicle';
+    
+    appData.currentEditId = vehicleId;
+}
+
+async function handleVehicleSubmit(event) {
+    event.preventDefault();
+    
+    const vehicleId = document.getElementById('vehicleId').value;
+    const vehicleData = {
+        customer_id: parseInt(document.getElementById('vehicleCustomerId').value),
+        make: document.getElementById('vehicleMake').value,
+        model: document.getElementById('vehicleModel').value,
+        year: parseInt(document.getElementById('vehicleYear').value),
+        license_plate: document.getElementById('vehiclePlate').value
+    };
+    
+    try {
+        if (vehicleId) {
+            await apiCall(`/vehicles/${vehicleId}`, {
+                method: 'PUT',
+                body: JSON.stringify(vehicleData)
+            });
+            showToast('Vehicle updated successfully!', 'success');
+        } else {
+            await apiCall('/vehicles', {
+                method: 'POST',
+                body: JSON.stringify(vehicleData)
+            });
+            showToast('Vehicle registered successfully!', 'success');
+        }
+        
+        await loadVehiclesData();
+        displayVehicles();
+        hideVehicleForm();
+        updateOverviewDashboard();
+        
+    } catch (error) {
+    }
+}
+
+function confirmDeleteVehicle(vehicleId) {
+    const vehicle = appData.vehicles.find(v => v.id === vehicleId);
+    if (!vehicle) return;
+    
+    showConfirmModal(
+        'Delete Vehicle',
+        `Are you sure you want to delete "${vehicle.make} ${vehicle.model}" (${vehicle.license_plate})? This action cannot be undone.`,
+        () => deleteVehicle(vehicleId)
+    );
+}
+
+async function deleteVehicle(vehicleId) {
+    try {
+        await apiCall(`/vehicles/${vehicleId}`, { method: 'DELETE' });
+        showToast('Vehicle deleted successfully!', 'success');
+        
+        await loadVehiclesData();
+        displayVehicles();
+        updateOverviewDashboard();
+        
+    } catch (error) {
+    }
+}
+
+function filterVehicles() {
+    const searchTerm = document.getElementById('vehicleSearchFilter').value.toLowerCase();
+    const filtered = appData.vehicles.filter(vehicle => 
+        vehicle.make.toLowerCase().includes(searchTerm) ||
+        vehicle.model.toLowerCase().includes(searchTerm) ||
+        vehicle.license_plate.toLowerCase().includes(searchTerm) ||
+        vehicle.customer_name.toLowerCase().includes(searchTerm)
+    );
+    
+    const originalVehicles = appData.vehicles;
+    appData.vehicles = filtered;
+    displayVehicles();
+    appData.vehicles = originalVehicles;
+}
+
 function displayServices() {
     const container = document.getElementById('servicesDataContainer');
     
