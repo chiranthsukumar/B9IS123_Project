@@ -580,3 +580,20 @@ async function deleteService(serviceId) {
     } catch (error) {
     }
 }
+
+function globalSearch() {
+    const searchTerm = document.getElementById('globalSearch').value.toLowerCase();
+    if (searchTerm.length < 2) return;
+    
+    switch(appData.currentModule) {
+        case 'customers':
+            document.getElementById('customerSearchFilter').value = searchTerm;
+            break;
+        case 'vehicles':
+            document.getElementById('vehicleSearchFilter').value = searchTerm;
+            break;
+        case 'services':
+            document.getElementById('serviceSearchFilter').value = searchTerm;
+            break;
+    }
+}
