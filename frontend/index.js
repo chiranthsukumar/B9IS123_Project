@@ -69,6 +69,28 @@ async function loadCustomersData() {
     }
 }
 
+async function loadVehiclesData() {
+    try {
+        const data = await apiCall('/vehicles');
+        appData.vehicles = data.vehicles;
+        return data;
+    } catch (error) {
+        appData.vehicles = [];
+        throw error;
+    }
+}
+
+async function loadServicesData() {
+    try {
+        const data = await apiCall('/services');
+        appData.services = data.services;
+        return data;
+    } catch (error) {
+        appData.services = [];
+        throw error;
+    }
+}
+
 function displayCustomers() {
     const container = document.getElementById('customersDataContainer');
     
