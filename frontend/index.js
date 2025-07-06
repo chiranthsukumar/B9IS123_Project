@@ -297,6 +297,21 @@ async function loadCustomersForSelect() {
     }
 }
 
+function filterCustomers() {
+    const searchTerm = document.getElementById('customerSearchFilter').value.toLowerCase();
+    const filtered = appData.customers.filter(customer => 
+        customer.name.toLowerCase().includes(searchTerm) ||
+        customer.phone.includes(searchTerm) ||
+        (customer.email && customer.email.toLowerCase().includes(searchTerm))
+    );
+    
+    // Store original data and temporarily replace for display
+    const originalCustomers = appData.customers;
+    appData.customers = filtered;
+    displayCustomers();
+    appData.customers = originalCustomers;
+}
+
 function showVehicleForm() {
     document.getElementById('vehicleForm').style.display = 'block';
     document.getElementById('vehicleForm').scrollIntoView();
@@ -581,6 +596,28 @@ async function deleteService(serviceId) {
     }
 }
 
+function filterServices() {
+    const searchTerm = document.getElementById('serviceSearchFilter').value.toLowerCase();
+    const statusFilter = document.getElementById('serviceStatusFilter').value;
+    
+    let filtered = appData.services.filter(service => {
+        const matchesSearch = service.description.toLowerCase().includes(searchTerm) ||
+                             service.customer_name.toLowerCase().includes(searchTerm) ||
+                             service.make.toLowerCase().includes(searchTerm) ||
+                             service.model.toLowerCase().includes(searchTerm) ||
+                             service.license_plate.toLowerCase().includes(searchTerm);
+        
+        const matchesStatus = !statusFilter || service.status === statusFilter;
+        
+        return matchesSearch && matchesStatus;
+    });
+    
+    const originalServices = appData.services;
+    appData.services = filtered;
+    displayServices();
+    appData.services = originalServices;
+}
+
 function globalSearch() {
     const searchTerm = document.getElementById('globalSearch').value.toLowerCase();
     if (searchTerm.length < 2) return;
@@ -588,12 +625,15 @@ function globalSearch() {
     switch(appData.currentModule) {
         case 'customers':
             document.getElementById('customerSearchFilter').value = searchTerm;
+            filterCustomers();
             break;
         case 'vehicles':
             document.getElementById('vehicleSearchFilter').value = searchTerm;
+            filterVehicles();
             break;
         case 'services':
             document.getElementById('serviceSearchFilter').value = searchTerm;
+            filterServices();
             break;
     }
 }
