@@ -1,5 +1,7 @@
 let appData = {
     customers: [],
+    vehicles: [],
+    services: [],
     currentModule: 'overview',
     currentEditId: null,
     currentEditType: null
