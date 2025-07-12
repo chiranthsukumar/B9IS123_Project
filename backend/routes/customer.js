@@ -82,7 +82,6 @@ router.put('/:id', async (req, res) => {
             return res.status(404).json({ error: 'Customer not found' });
         }
         
-        // Basic validation
         if (!name || !phone) {
             return res.status(400).json({ 
                 error: 'Name and phone are required' 

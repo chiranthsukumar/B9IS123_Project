@@ -1,3 +1,5 @@
+const API_BASE = '/api'
+
 let appData = {
     customers: [],
     vehicles: [],
@@ -15,6 +17,8 @@ async function initializeApp() {
     try {
         await Promise.all([
             loadCustomersData(),
+            loadVehiclesData(),
+            loadServicesData()
         ]);
 
         updateOverviewDashboard();
@@ -23,6 +27,51 @@ async function initializeApp() {
     } catch (error) {
         console.error('Error initializing app:', error);
     }
+}
+
+function switchModule(moduleName) {
+    // Update active nav item
+    document.querySelectorAll('.nav-item').forEach(item => {
+        item.classList.remove('active');
+    });
+    event.target.classList.add('active');
+    
+    // Hide all modules
+    document.querySelectorAll('.module').forEach(module => {
+        module.classList.remove('active');
+    });
+    
+    // Show selected module
+    document.getElementById(`${moduleName}-module`).classList.add('active');
+    
+    // Update page title
+    const titles = {
+        overview: 'Dashboard',
+        customers: 'Customer Management', 
+        vehicles: 'Vehicle Management',
+        services: 'Service Management'
+    };
+    document.getElementById('pageTitle').textContent = titles[moduleName];
+    
+    // Load module-specific data
+    switch(moduleName) {
+        case 'overview':
+            updateOverviewDashboard();
+            break;
+        case 'customers':
+            displayCustomers();
+            break;
+        case 'vehicles':
+            displayVehicles();
+            loadCustomersForSelect();
+            break;
+        case 'services':
+            displayServices();
+            loadVehiclesForSelect();
+            break;
+    }
+    
+    appData.currentModule = moduleName;
 }
 
 async function updateOverviewDashboard() {
@@ -217,9 +266,25 @@ async function deleteCustomer(customerId) {
 
         await loadCustomersData();
         displayCustomers();
+        updateOverviewDashboard();
         
     } catch (error) {
     }
+}
+
+function filterCustomers() {
+    const searchTerm = document.getElementById('customerSearchFilter').value.toLowerCase();
+    const filtered = appData.customers.filter(customer => 
+        customer.name.toLowerCase().includes(searchTerm) ||
+        customer.phone.includes(searchTerm) ||
+        (customer.email && customer.email.toLowerCase().includes(searchTerm))
+    );
+    
+    // Store original data and temporarily replace for display
+    const originalCustomers = appData.customers;
+    appData.customers = filtered;
+    displayCustomers();
+    appData.customers = originalCustomers;
 }
 
 function displayVehicles() {
@@ -295,21 +360,6 @@ async function loadCustomersForSelect() {
             select.innerHTML += `<option value="${customer.id}">${customer.name} - ${customer.phone}</option>`;
         });
     }
-}
-
-function filterCustomers() {
-    const searchTerm = document.getElementById('customerSearchFilter').value.toLowerCase();
-    const filtered = appData.customers.filter(customer => 
-        customer.name.toLowerCase().includes(searchTerm) ||
-        customer.phone.includes(searchTerm) ||
-        (customer.email && customer.email.toLowerCase().includes(searchTerm))
-    );
-    
-    // Store original data and temporarily replace for display
-    const originalCustomers = appData.customers;
-    appData.customers = filtered;
-    displayCustomers();
-    appData.customers = originalCustomers;
 }
 
 function showVehicleForm() {
