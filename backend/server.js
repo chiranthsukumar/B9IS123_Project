@@ -10,3 +10,7 @@ const serviceRoutes = require('./routes/services');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+app.use('/api/customers', customerRoutes);
+app.use('/api/vehicles', vehicleRoutes);
+app.use('/api/services', serviceRoutes);
