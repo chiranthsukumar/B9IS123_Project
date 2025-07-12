@@ -4,9 +4,9 @@ const path = require('path');
 
 const { db } = require('./database');
 
-const customerRoutes = require('./routes/customers');
-const vehicleRoutes = require('./routes/vehicles');
-const serviceRoutes = require('./routes/services');
+const customerRoutes = require('./routes/customer');
+const vehicleRoutes = require('./routes/vehicle');
+const serviceRoutes = require('./routes/service');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
