@@ -1,6 +1,5 @@
-import express from 'express';
-import { db } from '../database.js';
-
+const express = require('express');
+const { dbHelpers } = require('../database');
 const router = express.Router();
 
 router.post('/', async (req, res) => {
@@ -66,6 +65,28 @@ router.get('/:id', async (req, res) => {
     } catch (error) {
         console.error('Error fetching customer:', error);
         res.status(500).json({ error: 'Failed to fetch customer' });
+    }
+});
+
+// To search customers by name or phone
+router.get('/search/:query', async (req, res) => {
+    try {
+        const { query } = req.params;
+        const sql = `SELECT * FROM customers 
+                     WHERE name LIKE ? OR phone LIKE ?
+                     ORDER BY name`;
+        const searchTerm = `%${query}%`;
+        const customers = await dbHelpers.all(sql, [searchTerm, searchTerm]);
+        
+        res.json({
+            message: 'Search completed successfully',
+            customers: customers,
+            count: customers.length,
+            searchQuery: query
+        });
+    } catch (error) {
+        console.error('Error searching customers:', error);
+        res.status(500).json({ error: 'Failed to search customers' });
     }
 });
 
