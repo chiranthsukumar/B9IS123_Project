@@ -21,8 +21,30 @@ app.use('/api/customers', customerRoutes);
 app.use('/api/vehicles', vehicleRoutes);
 app.use('/api/services', serviceRoutes);
 
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, '../frontend/index.html'));
+});
+
+// Health check for API endpoint
+app.get('/api/health', (req, res) => {
+    res.json({ 
+        status: 'OK', 
+        message: 'Grand Auto Garage API is running',
+        timestamp: new Date().toISOString()
+    });
+});
+
+// Error handler
+app.use('/api/*', (req, res) => {
+    res.status(404).json({ 
+        error: 'API endpoint not found',
+        path: req.originalUrl 
+    });
+});
+
 const server = app.listen(PORT, () => {
     console.log(`Grand Auto Garage API server running on port ${PORT}`);
     console.log(`Frontend available at: http://localhost:${PORT}`);
 });
 
+module.exports = app;
