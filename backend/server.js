@@ -42,9 +42,27 @@ app.use('/api/*', (req, res) => {
     });
 });
 
+// Error handler for middleware
+app.use((err, req, res, next) => {
+    console.error('Error:', err.message);
+    res.status(500).json({ 
+        error: 'Internal server error',
+        message: err.message 
+    });
+});
+
 const server = app.listen(PORT, () => {
     console.log(`Grand Auto Garage API server running on port ${PORT}`);
     console.log(`Frontend available at: http://localhost:${PORT}`);
+    console.log(`API endpoints at: http://localhost:${PORT}/api/`);
+});
+
+process.on('SIGINT', () => {
+    console.log('Shutting down server...');
+    server.close(() => {
+        console.log('Server closed.');
+        process.exit(0);
+    });
 });
 
 module.exports = app;
