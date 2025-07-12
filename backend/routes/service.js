@@ -148,6 +148,33 @@ router.get('/customer/:customer_id', async (req, res) => {
     }
 });
 
+// Search services (based on description)
+router.get('/search/:query', async (req, res) => {
+    try {
+        const { query } = req.params;
+        const sql = `SELECT s.*, 
+                            v.make, v.model, v.license_plate,
+                            c.name as customer_name
+                     FROM services s
+                     JOIN vehicles v ON s.vehicle_id = v.id
+                     JOIN customers c ON v.customer_id = c.id
+                     WHERE s.description LIKE ?
+                     ORDER BY s.service_date DESC`;
+        const searchTerm = `%${query}%`;
+        const services = await dbHelpers.all(sql, [searchTerm]);
+        
+        res.json({
+            message: 'Service search completed successfully',
+            services: services,
+            count: services.length,
+            searchQuery: query
+        });
+    } catch (error) {
+        console.error('Error searching services:', error);
+        res.status(500).json({ error: 'Failed to search services' });
+    }
+});
+
 router.put('/:id', async (req, res) => {
     try {
         const { id } = req.params;
