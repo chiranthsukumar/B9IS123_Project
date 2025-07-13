@@ -3,10 +3,55 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Grand Auto Garage</title>
+    <title>Grand Auto Garage - Management System</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <body>
-    <div class = "main-content">
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <i class="fas fa-car"></i>
+                <h2>Grand Auto</h2>
+            </div>
+            <button class="sidebar-toggle" onclick="toggleSidebar()">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+        
+        <nav class="sidebar-nav">
+            <ul>
+                <li class="nav-item active" onclick="switchModule('overview')">
+                    <i class="fas fa-home"></i>
+                    <span>Dashboard</span>
+                </li>
+                <li class="nav-item" onclick="switchModule('customers')">
+                    <i class="fas fa-users"></i>
+                    <span>Customers</span>
+                </li>
+                <li class="nav-item" onclick="switchModule('vehicles')">
+                    <i class="fas fa-car"></i>
+                    <span>Vehicles</span>
+                </li>
+                <li class="nav-item" onclick="switchModule('services')">
+                    <i class="fas fa-tools"></i>
+                    <span>Services</span>
+                </li>
+            </ul>
+        </nav>
+        
+        <div class="sidebar-footer">
+            <div class="system-status">
+                <i class="fas fa-circle status-online"></i>
+                <span>Online</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Header -->
         <header class="top-header">
             <div class="header-left">
                 <button class="menu-toggle" onclick="toggleSidebar()">
@@ -25,9 +70,15 @@
                 </div>
             </div>
         </header>
+
+        <!-- Content -->
         <div class="content-container">
+            <!-- Dashboard Module -->
             <div id="overview-module" class="module active">
                 <h2>Business Overview</h2>
+                
+           
+
                 <div class="dashboard-content">
                     <div class="dashboard-card">
                         <h3>Recent Services</h3>
@@ -51,6 +102,7 @@
                 </div>
             </div>
 
+            <!-- Customers Module -->
             <div id="customers-module" class="module">
                 <div class="module-header">
                     <h2>Customer Management</h2>
@@ -59,6 +111,7 @@
                     </button>
                 </div>
 
+                <!-- Customer Form -->
                 <div id="customerForm" class="form-section" style="display: none;">
                     <div class="form-card">
                         <div class="form-header">
@@ -81,13 +134,15 @@
                     </div>
                 </div>
 
+                <!-- Customer List -->
                 <div class="filter-section">
                     <input type="text" id="customerSearchFilter" placeholder="Search customers..." onkeyup="filterCustomers()">
                 </div>
                 <div id="customersDataContainer">Loading customers...</div>
             </div>
 
-        <div id="vehicles-module" class="module">
+            <!-- Vehicles Module -->
+            <div id="vehicles-module" class="module">
                 <div class="module-header">
                     <h2>Vehicle Management</h2>
                     <button class="btn btn-primary" onclick="showVehicleForm()">
@@ -95,6 +150,7 @@
                     </button>
                 </div>
 
+                <!-- Vehicle Form -->
                 <div id="vehicleForm" class="form-section" style="display: none;">
                     <div class="form-card">
                         <div class="form-header">
@@ -120,6 +176,14 @@
                     </div>
                 </div>
 
+                <!-- Vehicle List -->
+                <div class="filter-section">
+                    <input type="text" id="vehicleSearchFilter" placeholder="Search vehicles..." onkeyup="filterVehicles()">
+                </div>
+                <div id="vehiclesDataContainer">Loading vehicles...</div>
+            </div>
+
+            <!-- Services Module -->
             <div id="services-module" class="module">
                 <div class="module-header">
                     <h2>Service Management</h2>
@@ -128,6 +192,7 @@
                     </button>
                 </div>
 
+                <!-- Service Form -->
                 <div id="serviceForm" class="form-section" style="display: none;">
                     <div class="form-card">
                         <div class="form-header">
@@ -157,12 +222,41 @@
                     </div>
                 </div>
 
+                <!-- Service List -->
+                <div class="filter-section">
+                    <input type="text" id="serviceSearchFilter" placeholder="Search services..." onkeyup="filterServices()">
+                    <select id="serviceStatusFilter" onchange="filterServices()">
+                        <option value="">All Status</option>
+                        <option value="completed">Completed</option>
+                        <option value="pending">Pending</option>
+                        <option value="in-progress">In Progress</option>
+                    </select>
+                </div>
                 <div id="servicesDataContainer">Loading services...</div>
             </div>
         </div>
     </div>
 
-    <script src="index.js"></script>
+    <!-- Toast Container -->
+    <div id="toastContainer" class="toast-container"></div>
 
+    <!-- Confirmation Modal -->
+    <div id="confirmationModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">Confirm</h3>
+                <button class="close-btn" onclick="closeModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <p id="modalMessage">Are you sure?</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-danger" id="confirmBtn">Confirm</button>
+                <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
 </body>
 </html>
