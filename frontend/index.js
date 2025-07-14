@@ -88,6 +88,11 @@ function switchModule(moduleName) {
     }
     
     appData.currentModule = moduleName;
+
+    if (window.innerWidth <= 768) {
+        document.getElementById('sidebar').classList.remove('open');
+    }
+
 }
 
 // Toast Notification System
@@ -162,39 +167,6 @@ async function apiCall(endpoint, options = {}) {
     }
 }
 
-async function updateOverviewDashboard() {
-    try {
-        document.getElementById('totalCustomers').textContent = appData.customers.length;
-        document.getElementById('totalServices').textContent = appData.services.length;
-        
-        const totalRevenue = appData.services.reduce((sum, service) => sum + parseFloat(service.cost || 0), 0);
-        document.getElementById('totalRevenue').textContent = formatCurrency(totalRevenue);
-        
-        const recentServices = appData.services.slice(0, 5);
-        const recentServicesHtml = recentServices.length > 0 ? 
-            recentServices.map(service => `
-                <div class="data-item" style="margin-bottom: 1rem; padding: 1rem; border-left: 3px solid #3498db;">
-                    <div class="item-header">
-                        <div>
-                            <div class="item-title">${service.customer_name}</div>
-                            <div class="item-subtitle">${service.make} ${service.model}</div>
-                        </div>
-                        <div class="detail-value">${formatCurrency(service.cost)}</div>
-                    </div>
-                    <div style="font-size: 0.9rem; color: #666; margin-top: 0.5rem;">
-                        ${service.description} • ${formatDate(service.service_date)}
-                    </div>
-                </div>
-            `).join('') :
-            '<div class="empty-state"><p>No services recorded yet.</p></div>';
-        
-        document.getElementById('recentServicesOverview').innerHTML = recentServicesHtml;
-        
-    } catch (error) {
-        console.error('Error updating dashboard:', error);
-    }
-}
-
 async function loadCustomersData() {
     try {
         const data = await apiCall('/customers');
@@ -225,6 +197,39 @@ async function loadServicesData() {
     } catch (error) {
         appData.services = [];
         throw error;
+    }
+}
+
+async function updateOverviewDashboard() {
+    try {
+        document.getElementById('totalCustomers').textContent = appData.customers.length;
+        document.getElementById('totalServices').textContent = appData.services.length;
+        
+        const totalRevenue = appData.services.reduce((sum, service) => sum + parseFloat(service.cost || 0), 0);
+        document.getElementById('totalRevenue').textContent = formatCurrency(totalRevenue);
+        
+        const recentServices = appData.services.slice(0, 5);
+        const recentServicesHtml = recentServices.length > 0 ? 
+            recentServices.map(service => `
+                <div class="data-item" style="margin-bottom: 1rem; padding: 1rem; border-left: 3px solid #3498db;">
+                    <div class="item-header">
+                        <div>
+                            <div class="item-title">${service.customer_name}</div>
+                            <div class="item-subtitle">${service.make} ${service.model}</div>
+                        </div>
+                        <div class="detail-value">${formatCurrency(service.cost)}</div>
+                    </div>
+                    <div style="font-size: 0.9rem; color: #666; margin-top: 0.5rem;">
+                        ${service.description} • ${formatDate(service.service_date)}
+                    </div>
+                </div>
+            `).join('') :
+            '<div class="empty-state"><p>No services recorded yet.</p></div>';
+        
+        document.getElementById('recentServicesOverview').innerHTML = recentServicesHtml;
+        
+    } catch (error) {
+        console.error('Error updating dashboard:', error);
     }
 }
 
@@ -804,3 +809,30 @@ function formatDate(dateString) {
     if (!dateString) return 'N/A';
     return new Date(dateString).toLocaleDateString('en-IE');
 }
+
+// Mobile Responsive Functions
+window.addEventListener('resize', function() {
+    if (window.innerWidth > 768) {
+        document.getElementById('sidebar').classList.remove('open');
+    }
+});
+
+// Close sidebar when clicking outside on mobile
+document.addEventListener('click', function(event) {
+    const sidebar = document.getElementById('sidebar');
+    const menuToggle = document.querySelector('.menu-toggle');
+    
+    if (window.innerWidth <= 768 && 
+        sidebar.classList.contains('open') && 
+        !sidebar.contains(event.target) && 
+        !menuToggle.contains(event.target)) {
+        sidebar.classList.remove('open');
+    }
+});
+
+// Close modal when clicking outside
+document.getElementById('confirmationModal').addEventListener('click', function(event) {
+    if (event.target === this) {
+        closeModal();
+    }
+});
