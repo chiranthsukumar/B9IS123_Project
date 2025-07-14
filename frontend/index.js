@@ -23,9 +23,25 @@ async function initializeApp() {
 
         updateOverviewDashboard();
 
+        // Set today's date as default for service date
+        const today = new Date().toISOString().split('T')[0];
+        const serviceDateInput = document.getElementById('serviceDate');
+        if (serviceDateInput) {
+            serviceDateInput.value = today;
+        }
+
         console.log('System initialized successfully');
     } catch (error) {
         console.error('Error initializing app:', error);
+    }
+}
+
+function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    if (window.innerWidth <= 768) {
+        sidebar.classList.toggle('open');
+    } else {
+        sidebar.classList.toggle('collapsed');
     }
 }
 
