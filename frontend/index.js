@@ -90,6 +90,78 @@ function switchModule(moduleName) {
     appData.currentModule = moduleName;
 }
 
+// Toast Notification System
+function showToast(message, type = 'info') {
+    const container = document.getElementById('toastContainer');
+    const toast = document.createElement('div');
+    
+    const icons = {
+        success: 'fas fa-check-circle',
+        error: 'fas fa-exclamation-circle', 
+        warning: 'fas fa-exclamation-triangle',
+        info: 'fas fa-info-circle'
+    };
+    
+    toast.className = `toast ${type}`;
+    toast.innerHTML = `
+        <div class="toast-content">
+            <i class="${icons[type]} toast-icon"></i>
+            <div class="toast-message">${message}</div>
+        </div>
+    `;
+    
+    container.appendChild(toast);
+    
+    // Auto-remove after 5 seconds
+    setTimeout(() => {
+        toast.remove();
+    }, 5000);
+}
+
+// Modal Functions
+function showConfirmModal(title, message, onConfirm) {
+    const modal = document.getElementById('confirmationModal');
+    document.getElementById('modalTitle').textContent = title;
+    document.getElementById('modalMessage').textContent = message;
+    
+    const confirmBtn = document.getElementById('confirmBtn');
+    confirmBtn.onclick = () => {
+        onConfirm();
+        closeModal();
+    };
+    
+    modal.classList.add('active');
+}
+
+function closeModal() {
+    document.getElementById('confirmationModal').classList.remove('active');
+}
+
+// API Helper Functions
+async function apiCall(endpoint, options = {}) {
+    try {
+        const response = await fetch(`${API_BASE}${endpoint}`, {
+            headers: {
+                'Content-Type': 'application/json',
+                ...options.headers
+            },
+            ...options
+        });
+        
+        const data = await response.json();
+        
+        if (!response.ok) {
+            throw new Error(data.error || 'API request failed');
+        }
+        
+        return data;
+    } catch (error) {
+        console.error('API Error:', error);
+        showToast(error.message, 'error');
+        throw error;
+    }
+}
+
 async function updateOverviewDashboard() {
     try {
         document.getElementById('totalCustomers').textContent = appData.customers.length;
@@ -225,6 +297,11 @@ function showCustomerForm() {
     appData.currentEditId = null;
 }
 
+function hideCustomerForm() {
+    document.getElementById('customerForm').style.display = 'none';
+    appData.currentEditId = null;
+}
+
 function editCustomer(customerId) {
     const customer = appData.customers.find(c => c.id === customerId);
     if (!customer) return;
@@ -269,10 +346,22 @@ async function handleCustomerSubmit(event) {
         
         await loadCustomersData();
         displayCustomers();
+        hideCustomerForm();
         updateOverviewDashboard();
         
     } catch (error) {
     }
+}
+
+function confirmDeleteCustomer(customerId) {
+    const customer = appData.customers.find(c => c.id === customerId);
+    if (!customer) return;
+    
+    showConfirmModal(
+        'Delete Customer',
+        `Are you sure you want to delete "${customer.name}"? This action cannot be undone.`,
+        () => deleteCustomer(customerId)
+    );
 }
 
 async function deleteCustomer(customerId) {
@@ -702,4 +791,16 @@ function globalSearch() {
             filterServices();
             break;
     }
+}
+
+function formatCurrency(amount) {
+    return new Intl.NumberFormat('en-IE', {
+        style: 'currency',
+        currency: 'EUR'
+    }).format(amount || 0);
+}
+
+function formatDate(dateString) {
+    if (!dateString) return 'N/A';
+    return new Date(dateString).toLocaleDateString('en-IE');
 }
