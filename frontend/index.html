@@ -13,7 +13,7 @@
         <div class="sidebar-header">
             <div class="logo">
                 <i class="fas fa-car"></i>
-                <h2>Grand Auto</h2>
+                <h3>Admin</h3>
             </div>
             <button class="sidebar-toggle" onclick="toggleSidebar()">
                 <i class="fas fa-bars"></i>
@@ -40,13 +40,6 @@
                 </li>
             </ul>
         </nav>
-        
-        <div class="sidebar-footer">
-            <div class="system-status">
-                <i class="fas fa-circle status-online"></i>
-                <span>Online</span>
-            </div>
-        </div>
     </div>
 
     <!-- Main Content -->
@@ -54,20 +47,7 @@
         <!-- Header -->
         <header class="top-header">
             <div class="header-left">
-                <button class="menu-toggle" onclick="toggleSidebar()">
-                    <i class="fas fa-bars"></i>
-                </button>
-                <h1 id="pageTitle">Dashboard</h1>
-            </div>
-            <div class="header-right">
-                <div class="search-container">
-                    <i class="fas fa-search"></i>
-                    <input type="text" id="globalSearch" placeholder="Search..." onkeyup="globalSearch()">
-                </div>
-                <div class="user-info">
-                    <i class="fas fa-user"></i>
-                    <span>Admin</span>
-                </div>
+                <h1 id="pageTitle">Grand Auto Garage</h1>
             </div>
         </header>
 
@@ -75,16 +55,7 @@
         <div class="content-container">
             <!-- Dashboard Module -->
             <div id="overview-module" class="module active">
-                <h2>Business Overview</h2>
-                
-           
-
                 <div class="dashboard-content">
-                    <div class="dashboard-card">
-                        <h3>Recent Services</h3>
-                        <div id="recentServicesOverview">Loading...</div>
-                    </div>
-                    
                     <div class="dashboard-card">
                         <h3>Quick Actions</h3>
                         <div class="quick-actions">
@@ -257,6 +228,6 @@
         </div>
     </div>
 
-    <script src="script.js"></script>
+    <script src="index.js"></script>
 </body>
 </html>

@@ -20,7 +20,7 @@ async function initializeApp() {
             loadVehiclesData(),
             loadServicesData()
         ]);
-
+        
         updateOverviewDashboard();
 
         // Set today's date as default for service date
@@ -33,15 +33,6 @@ async function initializeApp() {
         console.log('System initialized successfully');
     } catch (error) {
         console.error('Error initializing app:', error);
-    }
-}
-
-function toggleSidebar() {
-    const sidebar = document.getElementById('sidebar');
-    if (window.innerWidth <= 768) {
-        sidebar.classList.toggle('open');
-    } else {
-        sidebar.classList.toggle('collapsed');
     }
 }
 
@@ -809,26 +800,6 @@ function formatDate(dateString) {
     if (!dateString) return 'N/A';
     return new Date(dateString).toLocaleDateString('en-IE');
 }
-
-// Mobile Responsive Functions
-window.addEventListener('resize', function() {
-    if (window.innerWidth > 768) {
-        document.getElementById('sidebar').classList.remove('open');
-    }
-});
-
-// Close sidebar when clicking outside on mobile
-document.addEventListener('click', function(event) {
-    const sidebar = document.getElementById('sidebar');
-    const menuToggle = document.querySelector('.menu-toggle');
-    
-    if (window.innerWidth <= 768 && 
-        sidebar.classList.contains('open') && 
-        !sidebar.contains(event.target) && 
-        !menuToggle.contains(event.target)) {
-        sidebar.classList.remove('open');
-    }
-});
 
 // Close modal when clicking outside
 document.getElementById('confirmationModal').addEventListener('click', function(event) {
